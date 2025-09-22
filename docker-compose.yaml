@@ -116,7 +116,7 @@ services:
       - volume_exporter
 
   grafana:
-    image: grafana/grafana:10.2.0  # 升级到较新版本以支持 Tempo 2.x
+    image: grafana/grafana:12.0.0 # 升级到较新版本以支持 Tempo 2.x
     volumes:
       - ./data/grafana-data/datasources:/etc/grafana/provisioning/datasources
       - ./data/grafana-data/dashboards-provisioning:/etc/grafana/provisioning/dashboards
