@@ -4,8 +4,8 @@ ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk \
     PATH=$PATH:$JAVA_HOME/bin \
     JAVA_VERSION=8u212 \
     JAVA_ALPINE_VERSION=8.212.04-r0 \
-    OTEL_AGENT_VERSION=0.17.0 \
-    OTEL_AGENT_JAR_FILE=opentelemetry-javaagent-0.17.0.jar \
+    OTEL_AGENT_VERSION=2.20.0 \
+    OTEL_AGENT_JAR_FILE=opentelemetry-javaagent-2.20.0.jar \
     APP_HOME=/app/bin \
     MIN_HEAP_SIZE="40M" MAX_HEAP_SIZE="512M" THREADSTACK_SIZE="228k" \
     JAVA_GC_ARGS="-XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=40 -XX:+UseSerialGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90" \
@@ -26,7 +26,7 @@ COPY ./agent/${OTEL_AGENT_JAR_FILE} ${APP_HOME}/
 
 #USER root
 #RUN chown -R 1001:1001 ${APP_HOME}
-#RUN ["chmod", "+x", "/app/bin/start-app.sh"]
+RUN ["chmod", "+x", "/app/bin/start-app.sh"]
 
 #USER 1001
 

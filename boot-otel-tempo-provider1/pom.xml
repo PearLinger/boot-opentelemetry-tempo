@@ -68,8 +68,10 @@
 					<mainClass>io.opentelemetry.example.BootOtelTempoProvider1Application</mainClass>
 	                <argLine>
 	                    -javaagent:../boot-otel-tempo-docker/agent/opentelemetry-javaagent-${opentelemetry-agent.version}.jar
-	                    -Dotel.trace.exporter=jaeger 
-	                    -Dotel.exporter.jaeger.endpoint=localhost:14250  
+										<!-- 2. 核心：启用 OTLP Exporter（替代原 Jaeger Exporter） -->
+										  -Dotel.traces.exporter=otlp
+										<!-- 3. 修正：Tempo 的 OTLP HTTP 端点（服务名+4318端口，容器环境必须用服务名“tempo”） -->
+									  	-Dotel.exporter.otlp.endpoint=http://tempo:4317
 	                    -Dotel.resource.attributes=service.name=${project.artifactId} 
 	                    -Dotel.javaagent.debug=false 
 	                    -Dotel.metrics.exporter=none

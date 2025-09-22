@@ -3,46 +3,19 @@ version: "3.8"
 services:
 
   loki:
-    image: grafana/loki:2.2.0
+    image: grafana/loki:2.9.2 # 升级到较新版本以兼容
     command: -config.file=/etc/loki/loki-local.yaml
+    user: "0"
     ports:
-      - "3101:3100"                                   # loki needs to be exposed so it receives logs
+      - "3101:3100"
     environment:
       - JAEGER_AGENT_HOST=tempo
-      - JAEGER_ENDPOINT=http://tempo:14268/api/traces # send traces to Tempo
+      - JAEGER_ENDPOINT=http://tempo:4318/v1/traces  # Tempo 2.x 使用 OpenTelemetry 协议端口
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
     volumes:
       - ./etc/loki-local.yaml:/etc/loki/loki-local.yaml
       - ./data/loki-data:/tmp/loki
-
-  rabbitmq:
-    image: rabbitmq:3.7.28-management
-    #container_name: rabbitmq
-    volumes:
-        - ./etc/rabbitmq/:/etc/rabbitmq/
-        - ./data/rabbitmq/data/:/var/lib/rabbitmq/
-        - ./data/rabbitmq/logs/:/var/log/rabbitmq/
-    environment:
-        RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-secret_cookie}
-        RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-admin}
-        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-admin}
-    ports:
-        - 5672:5672    #amqp
-        - 15672:15672  #http
-        - 15692:15692  #prometheus
-
-  redis:
-    image: "redis:alpine"
-    #command: redis-server --requirepass sOmE_sEcUrE_pAsS
-    #hostname: redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./data/redis-data:/var/lib/redis
-      - ./etc/redis.conf:/usr/local/etc/redis/redis.conf
-    environment:
-     - REDIS_REPLICATION_MODE=maste
 
   provider1-db:
     image: postgres
@@ -70,30 +43,21 @@ services:
       - provider1-db
 
   tempo:
-    image: grafana/tempo:0.7.0
+    image: grafana/tempo:2.8.0  # 升级到 2.8.0 版本
     command: ["-config.file=/etc/tempo.yaml"]
     volumes:
-      - ./etc/tempo-local.yaml:/etc/tempo.yaml
-      - ./data/tempo-data:/tmp/tempo
+      - ./etc/tempo-local.yaml:/etc/tempo.yaml  # 需要更新配置文件内容以适配 2.x 版本
+      - ./data/tempo-data:/var/tempo  # 2.x 版本默认存储路径变化
+    restart: unless-stopped
     ports:
-      - "14268"  # jaeger ingest, Jaeger - Thrift HTTP
-      - "14250"  # Jaeger - GRPC
-      - "55680"  # OpenTelemetry
-      - "3100"   # tempo
-
-  tempo-query:
-    image: grafana/tempo-query:0.7.0
-    command: ["--grpc-storage-plugin.configuration-file=/etc/tempo-query.yaml"]
-    volumes:
-      - ./etc/tempo-query.yaml:/etc/tempo-query.yaml
-    ports:
-      - "16686:16686"  # jaeger-ui
-    depends_on:
-      - tempo
+      - "4317:4317"   # OpenTelemetry gRPC
+      - "4318:4318"   # OpenTelemetry HTTP
+      - "3102:3100"   # Tempo HTTP 端点
+      - "9095:9095"   # Tempo 指标端口
 
   boot-otel-tempo-mq-consumer:
     image: "mnadeem/boot-otel-tempo-mq-consumer:0.0.1-SNAPSHOT"
-    command: '/app/bin/wait-for.sh rabbitmq:5672 -t 50 -- sh /app/bin/start-app.sh'
+    command: 'sh /app/bin/wait-for.sh rabbitmq:5672 -t 50 -- sh /app/bin/start-app.sh'
     ports:
       - "8091:8091"
     environment:
@@ -105,7 +69,6 @@ services:
       REDIS_PORT: ${REDIS_PORT:-6379}
     volumes:
       - ./data/logs:/app/logs
-      - ./etc/wait-for.sh:/app/bin/wait-for.sh   #https://github.com/eficode/wait-for
     depends_on:
       - rabbitmq
       - redis
@@ -136,10 +99,9 @@ services:
       - ./data/logs:/app/logs
     depends_on:
       - boot-otel-tempo-provider1
-      - boot-otel-tempo-mq-consumer
 
   promtail:
-    image: grafana/promtail:2.2.0
+    image: grafana/promtail:2.9.0  # 升级到较新版本
     command: -config.file=/etc/promtail/promtail-local.yaml
     volumes:
       - ./etc/promtail-local.yaml:/etc/promtail/promtail-local.yaml
@@ -150,10 +112,10 @@ services:
 
   volume_exporter:
     image: mnadeem/volume_exporter
-    command: ["--volume-dir=tempo:/tmp/tempo", "--volume-dir=logs:/app/logs", "--volume-dir=loki:/tmp/loki"]
+    command: ["--volume-dir=tempo:/var/tempo", "--volume-dir=logs:/app/logs", "--volume-dir=loki:/tmp/loki"]
     volumes:
       - ./data/logs:/app/logs
-      - ./data/tempo-data:/tmp/tempo
+      - ./data/tempo-data:/var/tempo  # 匹配 Tempo 2.x 的存储路径
       - ./data/loki-data:/tmp/loki
     ports:
       - 9889:9888
@@ -169,9 +131,10 @@ services:
       - "9090:9090"
     depends_on:
       - boot-otel-tempo-api
+      - volume_exporter
 
   grafana:
-    image: grafana/grafana:7.4.0-ubuntu
+    image: grafana/grafana:12.0.0  # 升级到较新版本以支持 Tempo 2.x
     volumes:
       - ./data/grafana-data/datasources:/etc/grafana/provisioning/datasources
       - ./data/grafana-data/dashboards-provisioning:/etc/grafana/provisioning/dashboards
@@ -184,5 +147,32 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
-      - tempo-query
       - loki
+
+  rabbitmq:
+    image: rabbitmq:3.7.28-management
+    #container_name: rabbitmq
+    volumes:
+      - ./etc/rabbitmq/:/etc/rabbitmq/
+      - ./data/rabbitmq/data/:/var/lib/rabbitmq/
+      - ./data/rabbitmq/logs/:/var/log/rabbitmq/
+    environment:
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-secret_cookie}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-admin}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-admin}
+    ports:
+      - 5672:5672    #amqp
+      - 15672:15672  #http
+      - 15692:15692  #prometheus
+
+  redis:
+    image: "redis:alpine"
+    #command: redis-server --requirepass sOmE_sEcUrE_pAsS
+    #hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis-data:/var/lib/redis
+      - ./etc/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_REPLICATION_MODE=maste

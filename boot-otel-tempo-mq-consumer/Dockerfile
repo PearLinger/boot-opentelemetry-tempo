@@ -10,13 +10,14 @@ COPY ./target/${APP_NAME}-*.jar ${APP_HOME}/${APP_NAME}.jar
 # -Dcom.sun.management.jmxremote.rmi.port=5001 \
 # -Dcom.sun.management.jmxremote.host=127.0.0.1  \
 # -Djava.rmi.server.hostname=127.0.0.1"
-
+COPY ./scripts/wait-for.sh ${APP_HOME}/
+RUN ["chmod", "+x", "/app/bin/wait-for.sh"]
 EXPOSE 8091
 # OpenTelemetry:
 # https://github.com/open-telemetry/opentelemetry-java-instrumentation
 ENV JAVA_OPTS "${JAVA_OPTS} \
-  -Dotel.traces.exporter=jaeger \
-  -Dotel.exporter.jaeger.endpoint=http://tempo:14250 \
+  -Dotel.traces.exporter=otlp \
+  -Dotel.exporter.otlp.endpoint=http://tempo:4317 \
   -Dotel.metrics.exporter=none \
   -Dotel.resource.attributes="service.name=${APP_NAME}" \
   -Dotel.javaagent.debug=false \
