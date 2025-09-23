@@ -72,7 +72,8 @@
 										  -Dotel.traces.exporter=otlp
 										<!-- 3. 修正：Tempo 的 OTLP HTTP 端点（服务名+4318端口，容器环境必须用服务名“tempo”） -->
 									  	-Dotel.exporter.otlp.endpoint=http://tempo:4317
-	                    -Dotel.resource.attributes=service.name=${project.artifactId} 
+										  -Dotel.exporter.otlp.protocol=grpc
+										  -Dotel.resource.attributes=service.name=${project.artifactId}
 	                    -Dotel.javaagent.debug=false 
 	                    -Dotel.metrics.exporter=none
 	                </argLine>

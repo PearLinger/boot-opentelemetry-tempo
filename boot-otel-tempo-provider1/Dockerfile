@@ -17,6 +17,7 @@ EXPOSE 8090
 ENV JAVA_OPTS "${JAVA_OPTS} \
   -Dotel.traces.exporter=otlp \
   -Dotel.exporter.otlp.endpoint=http://tempo:4317 \
+  -Dotel.exporter.otlp.protocol=grpc \
   -Dotel.metrics.exporter=none \
   -Dotel.resource.attributes="service.name=${APP_NAME}" \
   -Dotel.javaagent.debug=false \

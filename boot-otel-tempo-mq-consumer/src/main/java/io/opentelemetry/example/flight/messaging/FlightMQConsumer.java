@@ -1,9 +1,11 @@
 package io.opentelemetry.example.flight.messaging;
 
+import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,7 +19,9 @@ import io.opentelemetry.extension.annotations.WithSpan;
 public class FlightMQConsumer {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FlightMQConsumer.class);
-
+	@Autowired
+	@Qualifier("io-executor")
+	private ExecutorService executorService;
 	@Autowired
 	private FlightService flightService;
 
@@ -32,6 +36,9 @@ public class FlightMQConsumer {
 			Flight flight = create(flightMessage);
 			flightService.process(flight);
 			LOGGER.debug("Message processed successfully");
+			executorService.execute(()->{
+				LOGGER.debug("Message Thread LOG");
+			});
 		} catch (Exception e) {
 			LOGGER.error("Unnable to process the Message", e);
 		}
