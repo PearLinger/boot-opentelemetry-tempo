@@ -36,3 +36,4 @@ build/
 /data/redis-data/
 /data/logs/
 /data/rabbitmq/
+/data/nacos/

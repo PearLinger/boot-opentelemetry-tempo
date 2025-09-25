@@ -1,0 +1,107 @@
+
+spring:
+  kafka:
+    bootstrap-servers: 192.168.3.25:9092
+    groupId: elegoo
+    producer:
+      retries: 3
+      retry:
+        backoff:
+          #生产者重试间隔时间
+          initial-interval: 1000
+      acks: 1
+      batch-size: 16384
+      buffer-memory: 1024000
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+      max-poll-records: 500
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+      retry:
+        count: 3
+        timeout: 5000
+    properties:
+      max:
+        poll:
+          interval:
+            ms: 600000
+      session:
+        timeout:
+          ms: 10000
+      request:
+        timeout:
+          ms: 30000
+    listener:
+      concurrency: 3
+      missing-topics-fatal: false
+      poll-timeout: 300000
+  rabbitmq:
+    listener:
+      simple:
+        prefetch: 1  # 消息预取数量
+    host: 192.168.3.217
+    port: 5672
+    username: admin
+    password: admin
+  redis:
+    cluster:
+      nodes: 192.168.3.217:6379
+      max-redirects: 3
+    host: 192.168.3.217
+    port: 6379
+  cloud:
+    nacos:
+      server-addr: 192.168.3.217:8848 # Nacos 服务器地址
+      username: nacos # Nacos 账号
+      password: nacos # Nacos 密码
+      discovery: # 【配置中心】配置项
+        namespace: public # 命名空间。这里使用 dev 开发环境
+        group: DEFAULT_GROUP # 使用的 Nacos 配置分组，默认为 DEFAULT_GROUP
+        metadata:
+          version: 1.0.0 # 服务实例的版本号，可用于灰度发布
+      config: # 【注册中心】配置项
+        namespace: public # 命名空间。这里使用 dev 开发环境
+        group: DEFAULT_GROUP # 使用的 Nacos 配置分组，默认为 DEFAULT_GROUP
+
+
+rabbitmq:
+  flight:
+    dg:
+      exchange: otel_flight_direct
+    received:
+      queue: flight.received.queue
+      routingkey: flight.event.received
+
+# JMX监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info,metric  # 最终生效的端点列表
+  health:
+    probes:
+      enabled: true
+    show-details: always
+
+# 日志配置
+logging:
+  level:
+    io.opentelemetry: DEBUG
+    web: INFO
+    root: INFO
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr([${spring.application.name},%X{trace_id},%X{span_id}]) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m %n%wEx"
+    file: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr([${spring.application.name},%X{trace_id},%X{span_id}]) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m %n%wEx"
+  file:
+    name: /app/logs/${spring.application.name}.log
+    max-size: 10MB
+    max-history: 1
+    clean-history-on-start: true

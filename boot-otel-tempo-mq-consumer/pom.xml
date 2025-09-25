@@ -41,22 +41,32 @@
 			<scope>runtime</scope>
 		</dependency>
 		
-		<dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-api</artifactId>
-        </dependency>
-         
-         <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-extension-annotations</artifactId>
-        </dependency>
+
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.elegoo.cloud</groupId>
+			<artifactId>elegoo-spring-boot-starter-rpc</artifactId>
+		</dependency>
 
+		<dependency>
+			<groupId>com.elegoo.cloud</groupId>
+			<artifactId>elegoo-spring-boot-starter-env</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.elegoo.cloud</groupId>
+			<artifactId>elegoo-spring-boot-starter-mq</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -64,6 +74,15 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<!-- 必须添加此目标，否则无法生成可执行JAR -->
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<fork>true</fork>
       				<skip>false</skip>

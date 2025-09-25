@@ -8,7 +8,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import io.opentelemetry.example.flight.model.Flight;
-import io.opentelemetry.extension.annotations.WithSpan;
 
 @Service
 public class FlightService {
@@ -21,7 +20,6 @@ public class FlightService {
 		this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-	@WithSpan
 	public void process(Flight flight) {
 		LOGGER.info("Processing : {}", flight);
 		valExpire("valExpireKey");		

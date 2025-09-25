@@ -2,14 +2,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.4.2</version>
-		<relativePath /> <!-- lookup parent from repository -->
-	</parent>
-
 	<groupId>io.opentelemetry.example</groupId>
 	<artifactId>boot-opentelemetry-tempo</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -19,6 +11,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
+		<revision>0.1-SNAPSHOT</revision>
 		<java.version>21</java.version>
 		<opentelemetry.version>0.17.1</opentelemetry.version>
 		<opentelemetry-agent.version>2.20.0</opentelemetry-agent.version>
@@ -33,6 +26,13 @@
 				<version>${opentelemetry.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.elegoo.cloud</groupId>
+				<artifactId>elegoo-dependencies</artifactId>
+				<version>${revision}</version>
+				<type>pom</type> <!-- 必须声明为POM类型 -->
+				<scope>import</scope> <!-- 必须使用import作用域 -->
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -99,6 +99,7 @@
 		<module>boot-otel-tempo-api</module>
 		<module>boot-otel-tempo-provider1</module>
 		<module>boot-otel-tempo-mq-consumer</module>
+		<module>boot-otel-tempo-feign-client</module>
 	</modules>
 
 </project>

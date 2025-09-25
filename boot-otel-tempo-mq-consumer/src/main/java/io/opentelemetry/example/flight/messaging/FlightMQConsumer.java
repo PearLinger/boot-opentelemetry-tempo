@@ -1,5 +1,6 @@
 package io.opentelemetry.example.flight.messaging;
 
+import com.elegoo.framework.mq.kafka.producer.KafkaManager;
 import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.opentelemetry.example.flight.model.Flight;
 import io.opentelemetry.example.flight.service.FlightService;
-import io.opentelemetry.extension.annotations.WithSpan;
 
 @Component
 public class FlightMQConsumer {
@@ -28,8 +28,10 @@ public class FlightMQConsumer {
 	@Autowired
 	private ObjectMapper mapper;
 
+	@Autowired
+	private KafkaManager kafkaManager;
+
 	@RabbitListener(queues = "#{'${rabbitmq.flight.received.queue}'}")
-	@WithSpan
 	public void consumeMessage(String flightMessage) {
 		try {
 			LOGGER.trace("Message received: {} ", flightMessage);
@@ -39,6 +41,8 @@ public class FlightMQConsumer {
 			executorService.execute(()->{
 				LOGGER.debug("Message Thread LOG");
 			});
+			kafkaManager.sendAsync("topentelemetry", flightMessage);
+			Thread.sleep(3000);
 		} catch (Exception e) {
 			LOGGER.error("Unnable to process the Message", e);
 		}

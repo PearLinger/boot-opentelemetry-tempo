@@ -59,13 +59,11 @@
 		<dependency>
 			<groupId>com.elegoo.cloud</groupId>
 			<artifactId>elegoo-spring-boot-starter-rpc</artifactId>
-			<version>0.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.elegoo.cloud</groupId>
 			<artifactId>elegoo-spring-boot-starter-env</artifactId>
-			<version>0.1-SNAPSHOT</version>
 		</dependency>
 
 
@@ -76,6 +74,15 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<!-- 必须添加此目标，否则无法生成可执行JAR -->
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
 				<configuration>
 					<fork>true</fork>
       				<skip>false</skip>

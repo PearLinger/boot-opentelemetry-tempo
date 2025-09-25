@@ -24,6 +24,7 @@ fi
 
 # 4. 打印参数（可选，用于调试）
 echo "Java options: $JAVA_OPTS -Xms${MIN_HEAP_SIZE} -Xmx${MAX_HEAP_SIZE} -Xss${THREADSTACK_SIZE} $JAVA_GC_ARGS $JAVA_DIAG_ARGS $JAVA_OPTS_APPEND"
+SPRING_PROFILES_ACTIVE=dev
 
 # 5. 启动命令（保持参数正确拼接）
 java $JAVA_OPTS \
