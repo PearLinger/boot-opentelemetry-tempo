@@ -1,5 +1,7 @@
 package io.opentelemetry.example.flight;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Tracer;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,9 +30,13 @@ public class FlightService {
 	public List<Flight> getFlights(String origin) {
 		LOGGER.info("Getting flights for {}", origin);
 		List<Flight> flights = this.flightClient.getFlights(origin);
-		send(flights);
+		sendOnce(flights);
 		doSomeWorkNewSpan();
 		return flights;
+	}
+
+	private void sendOnce(List<Flight> flights) {
+			this.producer.sendMessage(flights.get(0));
 	}
 
 	private void send(List<Flight> flights) {
@@ -40,7 +46,9 @@ public class FlightService {
 	}
 
 	@WithSpan
-    private void doSomeWorkNewSpan() {
+  private void doSomeWorkNewSpan() {
+		String traceId = Span.current().getSpanContext().getTraceId();
+
 		LOGGER.info("Doing some work In New span");
         Span span = Span.current();
  

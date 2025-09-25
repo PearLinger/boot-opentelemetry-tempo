@@ -18,6 +18,8 @@ spring:
 elegoo:
   env:
     tag: dev
+  tracer:
+    enable: true
 
 app:
   flights:
@@ -58,3 +60,5 @@ logging:
     max-size: 10MB
     max-history: 1
     clean-history-on-start: true
+
+

@@ -1,8 +1,10 @@
 package io.opentelemetry.example.kafka;
 
 import com.elegoo.framework.mq.kafka.annotation.KafKaAck;
+import io.opentelemetry.example.feign.ProviderApi;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
@@ -17,7 +19,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class KafkaMessageHandler {
-
+  @Autowired
+  private ProviderApi providerApi;
 
   /**
    * 订阅设备和应用的上下线消息
@@ -28,6 +31,7 @@ public class KafkaMessageHandler {
     {
       try {
         Thread.sleep(3000);
+        providerApi.flights();
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
