@@ -37,3 +37,5 @@ build/
 /data/logs/
 /data/rabbitmq/
 /data/nacos/
+/data/xxl-job/
+/data/xxl-job-mysql/

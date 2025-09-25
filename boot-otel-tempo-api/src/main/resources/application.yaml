@@ -62,3 +62,12 @@ logging:
     clean-history-on-start: true
 
 
+xxl:
+  job:
+    enabled: true # 是否开启调度中心，默认为 true 开启
+    admin:
+      addresses: http://192.168.3.217:9999/xxl-job-admin # 调度中心部署跟地址
+    executor:
+      appName: boot-otel-tempo-api
+      logPath: "."
+    accessToken: xxl-job # 执行器通讯TOKEN
