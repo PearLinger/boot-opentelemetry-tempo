@@ -1,13 +1,16 @@
-FROM openjdk:8-jdk-alpine
+FROM eclipse-temurin:21-jre
+RUN apt update && apt install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
 
-ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk \
+# 配置Java 21环境变量（基础镜像已内置Java，无需重复安装）
+ENV JAVA_HOME=/opt/java/openjdk \
     PATH=$PATH:$JAVA_HOME/bin \
-    JAVA_VERSION=8u212 \
-    JAVA_ALPINE_VERSION=8.212.04-r0 \
+    JAVA_VERSION=21.0.3 \
     OTEL_AGENT_VERSION=2.20.0 \
     OTEL_AGENT_JAR_FILE=opentelemetry-javaagent-2.20.0.jar \
     APP_HOME=/app/bin \
-    MIN_HEAP_SIZE="40M" MAX_HEAP_SIZE="512M" THREADSTACK_SIZE="228k" \
+    MIN_HEAP_SIZE="40M" \
+    MAX_HEAP_SIZE="512M" \
+    THREADSTACK_SIZE="228k" \
     JAVA_GC_ARGS="-XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=40 -XX:+UseSerialGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90" \
     JAVA_OPTS="-server -Duser.timezone=America/Chicago -Djava.security.egd=file:/dev/./urandom -XX:CompressedClassSpaceSize=64m -XX:MaxMetaspaceSize=256m" \
     JAVA_DIAG_ARGS="" \
@@ -17,7 +20,6 @@ ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk \
 #ENV JAVA_VERSION 8u212
 #ENV JAVA_ALPINE_VERSION 8.212.04-r0
 
-RUN apk add --no-cache openjdk8="$JAVA_ALPINE_VERSION"
 
 RUN mkdir -p ${APP_HOME}
 

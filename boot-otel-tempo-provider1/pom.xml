@@ -55,6 +55,20 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.elegoo.cloud</groupId>
+			<artifactId>elegoo-spring-boot-starter-rpc</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.elegoo.cloud</groupId>
+			<artifactId>elegoo-spring-boot-starter-env</artifactId>
+			<version>0.1-SNAPSHOT</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
